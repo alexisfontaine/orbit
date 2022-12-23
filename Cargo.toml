@@ -1,0 +1,32 @@
+[package]
+name = "orbit"
+version = "0.0.1"
+authors = ["Alexis Fontaine <alexis.fontaine@outlook.com>"]
+edition = "2021"
+description = "3D model viewer"
+readme = "readme.md"
+
+[features]
+default = ["svg"]
+canvas = [
+	"web-sys/CanvasRenderingContext2d",
+	"web-sys/HtmlCanvasElement",
+	"web-sys/Path2d",
+	"web-sys/ResizeObserver",
+	"web-sys/ResizeObserverEntry",
+	"web-sys/ResizeObserverSize",
+]
+svg = []
+
+[lib]
+path = "./sources/lib.rs"
+
+[dependencies]
+gloo-events = "0.1"
+leptos = "0.0"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+	"KeyboardEvent",
+]
