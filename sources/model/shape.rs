@@ -5,7 +5,7 @@ use std::simd::f64x4;
 use crate::utils::{center, dot_product, normal};
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Shape {
 	center: OnceCell<f64x4>,
 	normal: OnceCell<f64x4>,
