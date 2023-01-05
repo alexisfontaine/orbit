@@ -1,6 +1,6 @@
 [package]
 name = "orbit"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Alexis Fontaine <alexis.fontaine@outlook.com>"]
 edition = "2021"
 description = "3D model viewer"
@@ -29,5 +29,7 @@ leptos = "0.1.0-beta"
 version = "0.3"
 features = [
 	"CssStyleDeclaration",
+	"Event",
 	"KeyboardEvent",
+	"PointerEvent",
 ]
