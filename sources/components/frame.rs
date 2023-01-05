@@ -1,5 +1,3 @@
-use std::iter::once;
-
 use leptos::*;
 
 use crate::model::Source;
@@ -15,26 +13,25 @@ const LOW_PRIORITY_FETCHED: usize = EAGER_LOADED / 2;
 
 
 #[component]
-pub fn Frame (scope: Scope, index: usize) -> Element {
+pub fn Frame (scope: Scope, index: usize) -> impl IntoView {
 	let state = use_context::<State>(scope).unwrap();
 
-	let length = {
-		let state = state.clone();
+	let camera = state.camera();
+	let camera_index = state.camera;
+	let viewport_index = state.viewport;
+	let viewports = state.viewports();
 
-		create_memo(scope, move |_| state.viewports().len())
-	};
-
-	let loading = move || (EAGER_LOADED + 1..length() - EAGER_LOADED)
-		.contains(&state.viewport.get().abs_diff(index))
+	let loading = move || (EAGER_LOADED + 1..viewports() - EAGER_LOADED)
+		.contains(&viewport_index.get().abs_diff(index))
 		.then_some("lazy");
 
 	let priority = move || {
-		let delta = state.viewport.get().abs_diff(index);
+		let delta = viewport_index.get().abs_diff(index);
 
 		if delta == 0 {
 			Some("high")
 		} else {
-			let length = length();
+			let length = viewports();
 
 			(
 				(LOW_PRIORITY_FETCHED + 1..length - LOW_PRIORITY_FETCHED).contains(&delta) &&
@@ -43,47 +40,51 @@ pub fn Frame (scope: Scope, index: usize) -> Element {
 		}
 	};
 
-	let sources = create_memo(scope, move |_| {
-		let viewports = &state.viewports();
-
-		viewports[index]
+	// FIXME: Split it into 2 derived signals
+	let sources = create_memo(scope, move |_| camera.with(|camera| {
+		camera.viewports[index]
 			.source.as_ref()
 			.map(|source| match source {
-				Source::Dynamic(template) => vec![
-					(0, template.replace("{}", "3840")),
-					(500, template.replace("{}", "500")),
-					(1_000, template.replace("{}", "1000")),
-					(1_500, template.replace("{}", "1500")),
-					(2_000, template.replace("{}", "2000")),
-				],
+				Source::Dynamic(template) => (
+					template.replace("{}", "3840"),
+					vec![
+						(500, template.replace("{}", "500")),
+						(1_000, template.replace("{}", "1000")),
+						(1_500, template.replace("{}", "1500")),
+						(2_000, template.replace("{}", "2000")),
+					]
+				),
 
 				Source::Static(values) => {
 					let mut values = values.clone();
 
-					once(values.remove_entry(&0).or_else(|| values.pop_last()).unwrap())
-						.chain(values)
-						.collect()
+					(
+						values.remove_entry(&0).or_else(|| values.pop_last()).unwrap().1,
+						values.into_iter().collect()
+					)
 				}
 			})
 			.unwrap_or_default()
-	});
+	}));
 
 	view!(scope,
 		<picture class="frame">
-			<For each=move || (0..sources().len()).skip(1).collect() key=|index| *index>
-				{move |scope, &index: &usize| view!(scope, 
-					<source 
-						media=move || format!("(max-width:{}px)", &sources()[index].0)
-						srcset=move || sources()[index].1.clone()
+			<For
+				each=move || sources().1
+				key=move |source| (camera_index.get_untracked(), viewport_index.get_untracked(), source.0)
+				view={move |source: (usize, String)| view!(scope,
+					<source
+						media=format!("(max-width:{}px)", &source.0)
+						srcset=source.1
 					/>
 				)}
-			</For>
+			/>
 
-			<img 
-				class="frame_image" 
-				fetchpriority=priority 
-				loading=loading 
-				src=move || sources()[0].1.clone()
+			<img
+				class="frame_image"
+				fetchpriority=priority
+				loading=loading
+				src=move || sources().0
 			/>
 		</picture>
 	)

@@ -10,7 +10,7 @@ use super::overlay::{Overlay, OverlayProps};
 
 
 #[component]
-pub fn Viewer (scope: Scope, scene: Scene) -> Element {
+pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 	let state = State::new(scope, scene);
 
 	{

@@ -23,10 +23,11 @@ path = "./sources/lib.rs"
 
 [dependencies]
 gloo-events = "0.1"
-leptos = "0.0"
+leptos = "0.1.0-beta"
 
 [dependencies.web-sys]
 version = "0.3"
 features = [
+	"CssStyleDeclaration",
 	"KeyboardEvent",
 ]

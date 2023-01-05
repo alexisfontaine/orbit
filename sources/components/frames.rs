@@ -1,26 +1,23 @@
 use leptos::*;
-use web_sys::HtmlElement;
 
 use super::State;
 use super::frame::{Frame, FrameProps};
 
 
 #[component]
-pub fn Frames (scope: Scope) -> Element {
-	let container = NodeRef::new(scope);
+pub fn Frames (scope: Scope) -> impl IntoView {
 	let state = use_context::<State>(scope).unwrap();
 
+	let camera = state.camera();
+	let container = NodeRef::<HtmlElement<Div>>::new(scope);
+	let viewports = state.viewports();
+
 	// Sets the aspect-ratio of the container to match the active camera
-	{
-		let state = state.clone();
-		let aspect_ratio = create_memo(scope, move |_| state.camera().aspect_ratio.clone());
+	create_effect(scope, move |_| {
+		let style = container()?.style();
 
-		create_effect(scope, move |_| {
-			let style = HtmlElement::style(container()?.unchecked_ref());
-
-			style.set_property("aspect-ratio", &aspect_ratio()).ok()
-		});
-	}
+		camera.with(|camera| style.set_property("aspect-ratio", &camera.aspect_ratio)).ok()
+	});
 
 	// Updates the size of the container
 	#[cfg(feature = "canvas")]
@@ -43,7 +40,7 @@ pub fn Frames (scope: Scope) -> Element {
 			let observer = Rc::downgrade(&observer);
 
 			create_effect(scope, move |_| {
-				observer.upgrade()?.observe(&container()?);
+				observer.upgrade()?.observe(&&*container()?);
 				Some(())
 			});
 		}
@@ -55,37 +52,34 @@ pub fn Frames (scope: Scope) -> Element {
 	}
 
 	// Restores the current viewport on page reload
-	{
-		// FIXME: Disable `scrollRestoration` and save the current state in the `SessionStorage`.
-		create_effect(scope, move |_| {
-			let container = container()?;
-			let index = (container.scroll_top() as f64 / container.client_height() as f64).round() as _;
+	// FIXME: Disable `scrollRestoration` and save the current state in the `SessionStorage`.
+	create_effect(scope, move |_| {
+		let container = container()?;
+		let index = (container.scroll_top() as f64 / container.client_height() as f64).round() as _;
 
-			if index != state.viewport.get_untracked() {
-				state.viewport.set(index);
-			}
+		if index != state.viewport.get_untracked() {
+			state.viewport.set(index);
+		}
 
-			Some(())
-		});
-	}
+		Some(())
+	});
 
 	// Displays the active viewport
-	{
-		let state = state.clone();
+	create_effect(scope, move |_| {
+		let container = container()?;
 
-		create_effect(scope, move |_| {
-			let container = container()?;
-
-			container.scroll_with_x_and_y(0., container.scroll_height() as f64 / state.viewports().len() as f64 * state.viewport.get() as f64);
-			Some(())
-		});
-	}
+		container.scroll_with_x_and_y(0., container.scroll_height() as f64 / viewports() as f64 * state.viewport.get() as f64);
+		Some(())
+	});
 
 	view!(scope,
 		<div class="frames" _ref=container>
-			<For each=move || (0..state.viewports().len()).collect() key=|index| *index>
-				{|scope, index: &usize| view!(scope, <Frame index=*index />)}
-			</For>
+			// FIXME: Actually iterate over the data
+			<For
+				each=move || 0..viewports()
+				key=|index| *index
+				view={move |index: usize| view!(scope, <Frame index />)}
+			/>
 		</div>
 	)
 }
