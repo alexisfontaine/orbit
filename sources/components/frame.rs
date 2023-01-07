@@ -1,7 +1,5 @@
 use leptos::*;
 
-use crate::model::Source;
-
 use super::State;
 
 
@@ -17,7 +15,6 @@ pub fn Frame (scope: Scope, index: usize) -> impl IntoView {
 	let state = use_context::<State>(scope).unwrap();
 
 	let camera = state.camera();
-	let camera_index = state.camera;
 	let viewport_index = state.viewport;
 	let viewports = state.viewports();
 
@@ -40,51 +37,27 @@ pub fn Frame (scope: Scope, index: usize) -> impl IntoView {
 		}
 	};
 
-	// FIXME: Split it into 2 derived signals
-	let sources = create_memo(scope, move |_| camera.with(|camera| {
-		camera.viewports[index]
-			.source.as_ref()
-			.map(|source| match source {
-				Source::Dynamic(template) => (
-					template.replace("{}", "3840"),
-					vec![
-						(500, template.replace("{}", "500")),
-						(1_000, template.replace("{}", "1000")),
-						(1_500, template.replace("{}", "1500")),
-						(2_000, template.replace("{}", "2000")),
-					]
-				),
-
-				Source::Static(values) => {
-					let mut values = values.clone();
-
-					(
-						values.remove_entry(&0).or_else(|| values.pop_last()).unwrap().1,
-						values.into_iter().collect()
-					)
-				}
-			})
-			.unwrap_or_default()
-	}));
+	let sources = Signal::derive(scope, move || camera.with(|camera| camera.viewports[index].sources.clone()));
 
 	view!(scope,
 		<picture class="frame">
+			// Purposely iterates over indexes to re-use existing nodes
 			<For
-				each=move || sources().1
-				key=move |source| (camera_index.get_untracked(), viewport_index.get_untracked(), source.0)
-				view={move |source: (usize, String)| view!(scope,
+				each=move || 1..sources.with(|sources| sources.len())
+				key=|&index| index
+				view=move |index| view!(scope,
 					<source
-						media=format!("(max-width:{}px)", &source.0)
-						srcset=source.1
+						media=move || format!("(max-width:{}px)", sources.with(|sources| sources[index].0))
+						srcset=move || sources.with(|sources| sources[index].1.clone())
 					/>
-				)}
+				)
 			/>
 
 			<img
 				class="frame_image"
 				fetchpriority=priority
 				loading=loading
-				src=move || sources().0
+				src=move || sources.with(|sources| sources.get(0).cloned()).unwrap_or_default().1
 			/>
 		</picture>
 	)

@@ -74,11 +74,11 @@ pub fn Frames (scope: Scope) -> impl IntoView {
 
 	view!(scope,
 		<div class="frames" _ref=container>
-			// FIXME: Actually iterate over the data
+			// Purposely iterates over indexes to re-use existing nodes
 			<For
 				each=move || 0..viewports()
-				key=|index| *index
-				view={move |index: usize| view!(scope, <Frame index />)}
+				key=|&index| index
+				view={move |index| view!(scope, <Frame index />)}
 			/>
 		</div>
 	)
