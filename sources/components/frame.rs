@@ -40,7 +40,7 @@ pub fn Frame (scope: Scope, index: usize) -> impl IntoView {
 	let sources = Signal::derive(scope, move || camera.with(|camera| camera.viewports[index].sources.clone()));
 
 	view!(scope,
-		<picture class="frame">
+		<picture>
 			// Purposely iterates over indexes to re-use existing nodes
 			<For
 				each=move || 1..sources.with(|sources| sources.len())
@@ -54,7 +54,7 @@ pub fn Frame (scope: Scope, index: usize) -> impl IntoView {
 			/>
 
 			<img
-				class="frame_image"
+				class="frame"
 				fetchpriority=priority
 				loading=loading
 				src=move || sources.with(|sources| sources.get(0).cloned()).unwrap_or_default().1
