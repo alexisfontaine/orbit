@@ -1,18 +1,20 @@
 use leptos::*;
 
-use crate::components::State;
+use crate::state::use_state;
 
 
 #[component]
 fn Path (scope: Scope, width: f64, height: Signal<f64>, index: usize, class: String) -> impl IntoView {
-	let state = use_context::<State>(scope).unwrap();
-	let viewport = state.viewport();
+	let state = use_state(scope);
 
 	view!(scope,
 		<path
 			class=format!("shape {}", class)
-			d=move || viewport.with(|viewport| state.scene.shapes[index]
-				.path(width, height(), &viewport.matrix))
+			d=move || {
+				let shape = &state.get_scene().shapes[index];
+
+				state.with_viewport(|viewport| shape.path(width, height(), &viewport.matrix))
+			}
 		/>
 	)
 }
@@ -22,10 +24,9 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 	const WIDTH: f64 = 1_000.;
 
 
-	let state = use_context::<State>(scope).unwrap();
-	let camera = state.camera();
+	let state = use_state(scope);
 
-	let height = Signal::derive(scope, move || camera.with(|camera| {
+	let height = Signal::derive(scope, move || state.with_camera(|camera| {
 		let value = camera.aspect_ratio.split_once('/').unwrap();
 
 		(WIDTH / value.0.parse::<f64>().unwrap() * value.1.parse::<f64>().unwrap()).ceil()
@@ -38,7 +39,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			// FIXME: Make use of the `For` component
-			{move || camera.with(|camera| camera.styles
+			{move || state.with_camera(|camera| camera.styles
 				.iter()
 				.map(|style| view!(scope,
 					<Path 

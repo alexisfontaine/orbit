@@ -6,8 +6,8 @@ use leptos::*;
 use web_sys::{KeyboardEvent, PointerEvent};
 
 use crate::model::Scene;
+use crate::state::State;
 
-use super::State;
 use super::frames::{Frames, FramesProps};
 use super::overlay::{Overlay, OverlayProps};
 
@@ -16,24 +16,19 @@ use super::overlay::{Overlay, OverlayProps};
 pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 	let state = State::new(scope, scene);
 
+	provide_context(scope, state);
+
+	let handler = EventListener::new(&document(), "keydown", move |event| match KeyboardEvent::code(event.unchecked_ref()).as_str() {
+		"ArrowDown" => state.update_camera(-1),
+		"ArrowLeft" => state.update_viewport(-1),
+		"ArrowRight" => state.update_viewport(1),
+		"ArrowUp" => state.update_camera(1),
+		_ => {}
+	});
+
+	on_cleanup(scope, || drop(handler));
+
 	let pointer_state = Rc::new(Cell::new(None));
-	let viewport = state.viewport;
-
-	{
-		let mut state = state.clone();
-
-		let handler = EventListener::new(&document(), "keydown", move |event| match KeyboardEvent::code(event.unchecked_ref()).as_str() {
-			"ArrowDown" => state.previous_camera(),
-			"ArrowLeft" => state.previous_viewport(),
-			"ArrowRight" => state.next_viewport(),
-			"ArrowUp" => state.next_camera(),
-			_ => {}
-		});
-
-		on_cleanup(scope, || drop(handler));
-	}
-
-	provide_context(scope, state.clone());
 
 	let start = {
 		let pointer_state = pointer_state.clone();
@@ -41,11 +36,9 @@ pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 		move |event: PointerEvent| {
 			event.prevent_default();
 
-			// let event: &PointerEvent = event.unchecked_ref();
-
 			pointer_state.set(event.is_primary().then(|| (
 				document().body().unwrap().client_width() as f32,
-				state.viewports_untracked().len() as f32,
+				state.viewports_untracked() as f32,
 				event.client_x() as f32
 			)));
 		}
@@ -63,7 +56,7 @@ pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 
 				if offset != 0 {
 					pointer_state.set(Some((width, size, origin - offset as f32 * step)));
-					viewport.update(|index| *index = (*index as isize + offset).rem_euclid(size as _) as _);
+					state.update_viewport(offset);
 				}
 			}
 		}

@@ -1,14 +1,13 @@
 use leptos::*;
 use web_sys::{CanvasRenderingContext2d, Path2d};
 
-use crate::components::State;
+use crate::state::use_state;
 
 
 #[component]
 pub fn Overlay (scope: Scope) -> impl IntoView {
 	let canvas = NodeRef::<HtmlElement<Canvas>>::new(scope);
-	let state = use_context::<State>(scope).unwrap();
-	let viewport = state.viewport();
+	let state = use_state(scope);
 
 	let context = move || {
 		let canvas = canvas()?;
@@ -21,7 +20,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 	create_effect(scope, move |_| {
 		let (context, canvas) = context()?;
-		let (width, height) = state.size.get()?;
+		let (width, height) = state.get_size()?;
 		let ratio = window().device_pixel_ratio();
 
 		let (mut canvas_width, mut canvas_height) = (width, height);
@@ -43,19 +42,21 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 	create_effect(scope, move |_| {
 		let (context, _) = context()?;
-		let (width, height) = state.size.get()?;
+		let (width, height) = state.get_size()?;
 
 		context.clear_rect(0., 0., width, height);
 
-		viewport.with(|viewport| {
-			for style in &state.camera_untracked().styles {
-				let path = state.scene.shapes[style.index].path(width, height, &viewport.matrix)?;
+		let scene = state.get_scene();
+		let camera = &scene.cameras[state.get_camera()];
+		let matrix = &camera.viewports[state.get_viewport()].matrix;
 
+		for style in &camera.styles {
+			if let Some(path) = scene.shapes[style.index].path(width, height, matrix) {
 				context.fill_with_path_2d(&Path2d::new_with_path_string(&path).ok()?);
 			}
+		}
 
-			Some(())
-		})
+		Some(())
 	});
 
 	view!(scope,
