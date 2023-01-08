@@ -20,8 +20,6 @@ pub fn Frames (scope: Scope) -> impl IntoView {
 	// Updates the size of the container
 	#[cfg(feature = "canvas")]
 	{
-		use std::rc::Rc;
-
 		use wasm_bindgen::closure::Closure;
 		use web_sys::{ResizeObserver, ResizeObserverEntry, ResizeObserverSize};
 
@@ -32,19 +30,18 @@ pub fn Frames (scope: Scope) -> impl IntoView {
 			state.set_size(Some((size.inline_size(), size.block_size())));
 		});
 
-		let observer = Rc::new(ResizeObserver::new(update.as_ref().unchecked_ref()).unwrap());
+		let observer = store_value(scope, ResizeObserver::new(update.as_ref().unchecked_ref()).ok());
 
-		{
-			let observer = Rc::downgrade(&observer);
-
-			create_effect(scope, move |_| {
-				observer.upgrade()?.observe(&&*container()?);
-				Some(())
-			});
-		}
+		create_effect(scope, move |_| {
+			observer.get()?.observe(&&*container()?);
+			Some(())
+		});
 
 		on_cleanup(scope, move || {
-			observer.disconnect();
+			if let Some(observer) = observer.get() {
+				observer.disconnect();
+			}
+
 			drop(update);
 		});
 	}
