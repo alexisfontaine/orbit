@@ -2,6 +2,7 @@ use std::simd::f64x4;
 
 
 #[derive(Clone, Debug)]
+#[must_use]
 #[non_exhaustive]
 pub struct Viewport {
 	pub matrix: [f64x4; 4],

@@ -6,6 +6,7 @@ use crate::utils::{center, dot_product, normal};
 
 
 #[derive(Clone, Debug)]
+#[must_use]
 pub struct Shape {
 	center: OnceCell<f64x4>,
 	normal: OnceCell<f64x4>,
@@ -15,7 +16,7 @@ pub struct Shape {
 
 impl Shape {
 	#[inline]
-	pub fn new (vertices: Vec<f64x4>) -> Self {
+	pub const fn new (vertices: Vec<f64x4>) -> Self {
 		Self {
 			center: OnceCell::new(),
 			normal: OnceCell::new(),
@@ -24,6 +25,7 @@ impl Shape {
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn center (&self) -> f64x4 {
 		*self.center.get_or_init(|| center(&self.vertices))
 	}
@@ -31,19 +33,25 @@ impl Shape {
 	#[inline]
 	pub fn flip (&mut self) {
 		self.vertices.reverse();
-		self.normal.get_mut().map(|normal| *normal = -*normal);
+
+		if let Some(normal) = self.normal.get_mut() {
+			*normal = -*normal;
+		}
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn is_vertical (&self) -> bool {
 		self.normal()[2].abs() < 0.9
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn normal (&self) -> f64x4 {
 		*self.normal.get_or_init(|| normal(&self.vertices))
 	}
 
+	#[must_use]
 	pub fn path (&self, width: f64, height: f64, matrix: &[f64x4; 4]) -> Option<String> {
 		let mut path: String = once('M')
 			.chain(repeat('L'))

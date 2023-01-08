@@ -9,7 +9,7 @@ fn Path (scope: Scope, width: f64, height: Signal<f64>, index: usize, class: Str
 
 	view!(scope,
 		<path
-			class=format!("shape {}", class)
+			class=format!("shape {class}")
 			d=move || {
 				let shape = &state.get_scene().shapes[index];
 
@@ -35,7 +35,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 	view!(scope,
 		<svg
 			class="overlay"
-			viewBox=move || format!("0 0 {:.0} {:.0}", WIDTH, height())
+			viewBox=move || format!("0 0 {WIDTH:.0} {:.0}", height())
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			// FIXME: Make use of the `For` component
@@ -44,7 +44,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 				.map(|style| view!(scope,
 					<Path 
 						class=style.name.clone()
-						height=height.into()
+						height
 						index=style.index
 						width=WIDTH
 					/>

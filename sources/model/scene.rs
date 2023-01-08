@@ -2,6 +2,7 @@ use super::{Camera, Shape};
 
 
 #[derive(Clone, Debug)]
+#[must_use]
 #[non_exhaustive]
 pub struct Scene {
 	pub cameras: Vec<Camera>,
@@ -11,7 +12,7 @@ pub struct Scene {
 
 impl Scene {
 	#[inline]
-	pub fn new (cameras: Vec<Camera>, shapes: Vec<Shape>) -> Self {
+	pub const fn new (cameras: Vec<Camera>, shapes: Vec<Shape>) -> Self {
 		Self {
 			cameras,
 			shapes,

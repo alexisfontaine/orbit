@@ -6,8 +6,13 @@ const YZX: [usize; 4] = [1, 2, 0, 3];
 const ZXY: [usize; 4] = [2, 0, 1, 3];
 
 
+/// # Panics
+///
+/// Empty arrays are not handled.
+#[inline]
+#[must_use]
 pub fn center (points: &[f64x4]) -> f64x4 {
-	debug_assert!(points.len() > 0);
+	debug_assert!(!points.is_empty());
 	points.iter().copied().reduce(Add::add).unwrap() / Simd::splat(points.len() as _)
 }
 
@@ -17,11 +22,13 @@ pub fn center (points: &[f64x4]) -> f64x4 {
 // }
 
 #[inline]
+#[must_use]
 pub fn dot_product (vector_1: f64x4, vector_2: f64x4) -> f64 {
 	(vector_1 * vector_2).reduce_sum()
 }
 
 /// Based on Newell's method
+#[must_use]
 pub fn normal (points: &[f64x4]) -> f64x4 {
 	debug_assert!(points.len() > 2);
 
@@ -35,7 +42,7 @@ pub fn normal (points: &[f64x4]) -> f64x4 {
 	let mut normal = f64x4::default();
 
 	while let Some((current, next)) = points.next().zip(points.peek()) {
-		normal += (current.0 - next.0) * (current.1 + next.1)
+		normal += (current.0 - next.0) * (current.1 + next.1);
 	}
 
 	normal / Simd::splat(dot_product(normal, normal).sqrt())

@@ -33,7 +33,7 @@ pub fn Frames (scope: Scope) -> impl IntoView {
 		let observer = store_value(scope, ResizeObserver::new(update.as_ref().unchecked_ref()).ok());
 
 		create_effect(scope, move |_| {
-			observer.get()?.observe(&&*container()?);
+			observer.get()?.observe(&*container()?);
 			Some(())
 		});
 

@@ -25,13 +25,13 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 		let (mut canvas_width, mut canvas_height) = (width, height);
 
-		if ratio != 1. {
+		if (ratio - 1.).abs() < f64::EPSILON {
 			canvas_width = (width * ratio).round();
 			canvas_height = (height * ratio).round();
 
 			let style = canvas.style();
-			let _ = style.set_property("width", &format!("{}px", width));
-			let _ = style.set_property("height", &format!("{}px", height));
+			let _ = style.set_property("width", &format!("{width}px"));
+			let _ = style.set_property("height", &format!("{height}px"));
 			let _ = context.scale(width / canvas_width, height / canvas_height);
 		}
 

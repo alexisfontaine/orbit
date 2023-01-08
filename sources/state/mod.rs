@@ -6,6 +6,7 @@ use crate::model::{Camera, Scene, Viewport};
 
 
 #[derive(Copy, Clone, Debug)]
+#[must_use]
 pub struct State {
 	camera: RwSignal<usize>,
 	scene: RwSignal<Rc<Scene>>,
@@ -30,21 +31,25 @@ impl State {
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn cameras_untracked (&self) -> usize {
 		self.scene.with_untracked(|scene| scene.cameras.len())
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn get_camera (&self) -> usize {
 		self.camera.get()
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn get_scene (&self) -> Rc<Scene> {
 		self.scene.get()
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn get_viewport (&self) -> usize {
 		self.viewport.get()
 	}
@@ -79,37 +84,44 @@ impl State {
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn viewports (&self) -> usize {
-		self.with_viewports(|viewports| viewports.len())
+		self.with_viewports(<[_]>::len)
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn viewports_untracked (&self) -> usize {
 		self.scene.with_untracked(|scene| scene.cameras[self.camera.get_untracked()].viewports.len())
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn with_camera<Type> (&self, with: impl FnOnce(&Camera) -> Type) -> Type {
 		self.with_cameras(|cameras| with(&cameras[self.camera.get()]))
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn with_cameras<Type> (&self, with: impl FnOnce(&[Camera]) -> Type) -> Type {
 		self.scene.with(|scene| with(&scene.cameras))
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn with_viewport<Type> (&self, with: impl FnOnce(&Viewport) -> Type) -> Type {
 		self.with_viewports(|viewports| with(&viewports[self.viewport.get()]))
 	}
 
 	#[inline]
+	#[must_use]
 	pub fn with_viewports<Type> (&self, with: impl FnOnce(&[Viewport]) -> Type) -> Type {
 		self.with_camera(|camera| with(&camera.viewports))
 	}
 
 	#[cfg(feature = "canvas")]
 	#[inline]
+	#[must_use]
 	pub fn get_size (&self) -> Option<(f64, f64)> {
 		self.size.get()
 	}
@@ -126,6 +138,9 @@ impl State {
 }
 
 
+/// # Panics
+///
+/// Need to be called in the context of a `State`
 #[inline]
 pub fn use_state (scope: Scope) -> State {
 	use_context(scope).unwrap()

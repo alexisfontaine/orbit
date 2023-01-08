@@ -49,7 +49,7 @@ pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 			let offset = ((origin - event.client_x() as f32) / step) as isize;
 
 			if offset != 0 {
-				pointer_state.set(Some((width, size, origin - offset as f32 * step)));
+				pointer_state.set(Some((width, size, f32::mul_add(offset as _, -step, origin))));
 				state.update_viewport(offset);
 			}
 		}

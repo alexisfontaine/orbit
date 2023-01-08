@@ -1,4 +1,5 @@
 #[derive(Clone, Debug)]
+#[must_use]
 #[non_exhaustive]
 pub struct Style {
 	pub index: usize,
@@ -8,7 +9,7 @@ pub struct Style {
 
 impl Style {
 	#[inline]
-	pub fn new (name: String, index: usize) -> Self {
+	pub const fn new (name: String, index: usize) -> Self {
 		Self {
 			index,
 			name,
