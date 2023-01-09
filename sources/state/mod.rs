@@ -21,7 +21,7 @@ impl State {
 	#[inline]
 	pub fn new (scope: Scope, scene: Scene) -> Self {
 		Self {
-			camera: create_rw_signal(scope, scene.cameras.len() - 1),
+			camera: create_rw_signal(scope, 0),
 			scene: create_rw_signal(scope, Rc::new(scene)),
 			viewport: create_rw_signal(scope, 0),
 
