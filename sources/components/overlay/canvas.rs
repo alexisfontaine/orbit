@@ -1,6 +1,7 @@
 use leptos::*;
 use web_sys::{CanvasRenderingContext2d, Path2d};
 
+use crate::model::Style;
 use crate::state::use_state;
 
 
@@ -47,19 +48,33 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 		context.clear_rect(0., 0., width, height);
 
 		let scene = state.get_scene();
+		let shapes = &scene.shapes;
 		let camera = &scene.cameras[state.get_camera()];
 		let matrix = &camera.viewports[state.get_viewport()].matrix;
 
-		for style in &camera.styles {
-			if let Some(path) = scene.shapes[style.index].path(width, height, matrix) {
+		draw(&camera.styles, &move |style| {
+			if let Some(path) = shapes[style.get_shape()?.index].path(width, height, matrix) {
 				context.fill_with_path_2d(&Path2d::new_with_path_string(&path).ok()?);
 			}
-		}
 
-		Some(())
+			Some(())
+		})
 	});
 
 	view!(scope,
 		<canvas _ref=canvas class="overlay" />
 	)
+}
+
+
+fn draw (styles: &[Style], with: &impl Fn(&Style) -> Option<()>) -> Option<()> {
+	for style in styles {
+		if let Some(style) = style.get_compound() {
+			draw(&style.children, with);
+		} else {
+			with(style)?;
+		}
+	}
+
+	Some(())
 }
