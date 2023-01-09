@@ -1,10 +1,12 @@
 [package]
 name = "orbit"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Alexis Fontaine <alexis.fontaine@outlook.com>"]
 edition = "2021"
 description = "3D model viewer"
 readme = "readme.md"
+repository = "https://github.com/alexisfontaine/orbit"
+license = "GPL-3.0"
 
 [features]
 default = ["svg"]
