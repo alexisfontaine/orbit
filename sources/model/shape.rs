@@ -52,12 +52,16 @@ impl Shape {
 	}
 
 	#[must_use]
-	pub fn path (&self, width: f64, height: f64, matrix: &[f64x4; 4]) -> Option<String> {
+	pub fn path (&self, width: f64, height: f64, matrix: &[f64x4; 4], offset: Option<f64x4>) -> Option<String> {
 		let mut path: String = once('M')
 			.chain(repeat('L'))
 			.zip(self.vertices.iter())
 			.map(|(command, point)| {
 				let mut point = *point;
+
+				if let Some(offset) = offset {
+					point += offset;
+				}
 
 				point[3] = 1.;
 

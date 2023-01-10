@@ -53,7 +53,9 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 		let matrix = &camera.viewports[state.get_viewport()].matrix;
 
 		draw(&camera.styles, &move |style| {
-			if let Some(path) = shapes[style.get_shape()?.index].path(width, height, matrix) {
+			let style = style.get_shape()?;
+
+			if let Some(path) = shapes[style.index].path(width, height, matrix, style) {
 				context.fill_with_path_2d(&Path2d::new_with_path_string(&path).ok()?);
 			}
 

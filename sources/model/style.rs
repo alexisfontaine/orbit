@@ -1,3 +1,6 @@
+use std::simd::f64x4;
+
+
 #[derive(Clone, Debug)]
 #[must_use]
 enum Kind {
@@ -18,6 +21,7 @@ pub struct CompoundStyle {
 pub struct ShapeStyle {
 	pub index: usize,
 	pub name: String,
+	pub offset: Option<f64x4>,
 }
 
 #[derive(Clone, Debug)]
@@ -32,8 +36,8 @@ impl Style {
 	}
 
 	#[inline]
-	pub fn shape (name: String, index: usize) -> Self {
-		Self(Kind::Shape(ShapeStyle { index, name }))
+	pub fn shape (name: String, index: usize, offset: Option<f64x4>) -> Self {
+		Self(Kind::Shape(ShapeStyle { index, name, offset }))
 	}
 
 	#[inline]
