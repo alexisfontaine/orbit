@@ -10,7 +10,7 @@ use super::overlay::{Overlay, OverlayProps};
 
 
 #[component]
-pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
+pub fn Viewer (scope: Scope, scene: Scene, with_overlay: bool) -> impl IntoView {
 	let pointer_state = store_value(scope, None);
 	let state = State::new(scope, scene);
 
@@ -65,7 +65,7 @@ pub fn Viewer (scope: Scope, scene: Scene) -> impl IntoView {
 		>
 			<Frames />
 
-			<Overlay />
+			{with_overlay.then(|| view!(scope, <Overlay />))}
 		</main>
 	)
 }
