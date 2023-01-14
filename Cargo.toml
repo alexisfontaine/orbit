@@ -25,7 +25,7 @@ path = "./sources/lib.rs"
 
 [dependencies]
 gloo-events = "0.1"
-leptos = "0.1.0-beta"
+leptos = "0.1"
 
 [dependencies.web-sys]
 version = "0.3"
