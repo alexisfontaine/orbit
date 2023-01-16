@@ -13,6 +13,7 @@ enum Kind {
 #[must_use]
 pub struct CompoundStyle {
 	pub children: Vec<Style>,
+	pub identifier: String,
 	pub name: String,
 }
 
@@ -31,8 +32,8 @@ pub struct Style(Kind);
 
 impl Style {
 	#[inline]
-	pub fn compound (name: String, children: Vec<Self>) -> Self {
-		Self(Kind::Compound(CompoundStyle { children, name }))
+	pub fn compound (identifier: String, name: String, children: Vec<Self>) -> Self {
+		Self(Kind::Compound(CompoundStyle { children, identifier, name }))
 	}
 
 	#[inline]

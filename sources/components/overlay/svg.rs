@@ -79,6 +79,15 @@ fn Paths (scope: Scope, width: f64, height: Signal<f64>, indexes: Signal<Vec<usi
 
 						Some(styles.get(index)?.get_compound().unwrap().name.clone())
 					}))
+					id=move || state.with_camera(|camera| indexes.with(|indexes| {
+						let mut styles = &camera.styles;
+
+						for &index in indexes {
+							styles = &styles[index].get_compound().unwrap().children;
+						}
+
+						Some(styles.get(index)?.get_compound().unwrap().identifier.clone())
+					}))
 				>
 					<Paths
 						height
