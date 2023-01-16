@@ -1,6 +1,15 @@
 use std::rc::Rc;
 
-use leptos::{create_rw_signal, use_context, RwSignal, Scope, UntrackedGettableSignal};
+use leptos::{
+	create_rw_signal,
+	provide_context,
+	use_context,
+	MaybeSignal,
+	RwSignal,
+	Scope,
+	Signal,
+	UntrackedGettableSignal,
+};
 
 use crate::model::{Camera, Scene, Viewport};
 
@@ -9,6 +18,7 @@ use crate::model::{Camera, Scene, Viewport};
 #[must_use]
 pub struct State {
 	camera: RwSignal<usize>,
+	overlay: Signal<bool>,
 	scene: RwSignal<Rc<Scene>>,
 	viewport: RwSignal<usize>,
 
@@ -19,9 +29,13 @@ pub struct State {
 
 impl State {
 	#[inline]
-	pub fn new (scope: Scope, scene: Scene) -> Self {
+	fn new (scope: Scope, scene: Scene, overlay: MaybeSignal<bool>) -> Self {
 		Self {
 			camera: create_rw_signal(scope, 0),
+			overlay: match overlay {
+				MaybeSignal::Dynamic(overlay) => overlay,
+				MaybeSignal::Static(overlay) => Signal::from(create_rw_signal(scope, overlay)),
+			},
 			scene: create_rw_signal(scope, Rc::new(scene)),
 			viewport: create_rw_signal(scope, 0),
 
@@ -46,6 +60,12 @@ impl State {
 	#[must_use]
 	pub fn get_scene (&self) -> Rc<Scene> {
 		self.scene.get()
+	}
+
+	#[inline]
+	#[must_use]
+	pub fn get_overlay (&self) -> bool {
+		self.overlay.get()
 	}
 
 	#[inline]
@@ -137,6 +157,13 @@ impl State {
 	}
 }
 
+
+#[inline]
+pub fn provide_state (scope: Scope, scene: Scene, overlay: MaybeSignal<bool>) {
+	let state = State::new(scope, scene, overlay);
+
+	provide_context(scope, state);
+}
 
 /// # Panics
 ///

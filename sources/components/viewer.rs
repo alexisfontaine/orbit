@@ -2,19 +2,16 @@ use gloo_events::EventListener;
 use leptos::*;
 use web_sys::{KeyboardEvent, PointerEvent};
 
-use crate::model::Scene;
-use crate::state::State;
+use crate::state::use_state;
 
 use super::frames::{Frames, FramesProps};
 use super::overlay::{Overlay, OverlayProps};
 
 
 #[component]
-pub fn Viewer (scope: Scope, scene: Scene, with_overlay: bool) -> impl IntoView {
+pub fn Viewer (scope: Scope) -> impl IntoView {
+	let state = use_state(scope);
 	let pointer_state = store_value(scope, None);
-	let state = State::new(scope, scene);
-
-	provide_context(scope, state);
 
 	let handler = EventListener::new(&document(), "keydown", move |event| match KeyboardEvent::code(event.unchecked_ref()).as_str() {
 		"ArrowDown" => state.update_camera(-1),
@@ -65,7 +62,7 @@ pub fn Viewer (scope: Scope, scene: Scene, with_overlay: bool) -> impl IntoView 
 		>
 			<Frames />
 
-			{with_overlay.then(|| view!(scope, <Overlay />))}
+			{move || state.get_overlay().then(|| view!(scope, <Overlay />))}
 		</main>
 	)
 }
