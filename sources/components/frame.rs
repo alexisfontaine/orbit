@@ -13,25 +13,7 @@ const LOW_PRIORITY_FETCHED: usize = EAGER_LOADED / 2;
 #[component]
 pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 	let state = use_state(scope);
-
-	let loading = move || (EAGER_LOADED + 1..state.viewports() - EAGER_LOADED)
-		.contains(&state.get_viewport().abs_diff(viewport))
-		.then_some("lazy");
-
-	let priority = move || {
-		let delta = state.get_viewport().abs_diff(viewport);
-
-		if delta == 0 {
-			Some("high")
-		} else {
-			let length = state.viewports();
-
-			(
-				(LOW_PRIORITY_FETCHED + 1..length - LOW_PRIORITY_FETCHED).contains(&delta) &&
-				!(EAGER_LOADED + 1..length - EAGER_LOADED).contains(&delta)
-			).then_some("low")
-		}
-	};
+	let loading = create_rw_signal(scope, true);
 
 	view!(scope,
 		<picture>
@@ -53,9 +35,32 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 
 			<img
 				class="frame"
-				fetchpriority=priority
-				loading=loading
+				class:loading=loading
+				fetchpriority=move || {
+					let delta = state.get_viewport().abs_diff(viewport);
+
+					if delta == 0 {
+						Some("high")
+					} else {
+						let length = state.viewports();
+
+						(
+							(LOW_PRIORITY_FETCHED + 1..length - LOW_PRIORITY_FETCHED).contains(&delta) &&
+							!(EAGER_LOADED + 1..length - EAGER_LOADED).contains(&delta)
+						).then_some("low")
+					}
+				}
+				loading=move || (EAGER_LOADED + 1..state.viewports() - EAGER_LOADED)
+					.contains(&state.get_viewport().abs_diff(viewport))
+					.then_some("lazy")
+				on:load=move |_| if loading.get_untracked() {
+					loading.set(false);
+				}
 				src=move || state.with_viewports(|viewports| {
+					if !loading.get_untracked() {
+						loading.set(true);
+					}
+
 					viewports[viewport].sources.get(0).cloned().unwrap_or_default().1
 				})
 			/>
