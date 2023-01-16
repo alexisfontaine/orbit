@@ -19,7 +19,7 @@ use crate::model::{Camera, Scene, Viewport};
 pub struct State {
 	camera: RwSignal<usize>,
 	overlay: Signal<bool>,
-	scene: RwSignal<Rc<Scene>>,
+	scene: Signal<Rc<Scene>>,
 	viewport: RwSignal<usize>,
 
 	#[cfg(feature = "canvas")]
@@ -29,14 +29,17 @@ pub struct State {
 
 impl State {
 	#[inline]
-	fn new (scope: Scope, scene: Scene, overlay: MaybeSignal<bool>) -> Self {
+	fn new (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) -> Self {
 		Self {
 			camera: create_rw_signal(scope, 0),
 			overlay: match overlay {
 				MaybeSignal::Dynamic(overlay) => overlay,
 				MaybeSignal::Static(overlay) => Signal::from(create_rw_signal(scope, overlay)),
 			},
-			scene: create_rw_signal(scope, Rc::new(scene)),
+			scene: match scene {
+				MaybeSignal::Dynamic(scene) => scene,
+				MaybeSignal::Static(scene) => Signal::from(create_rw_signal(scope, scene)),
+			},
 			viewport: create_rw_signal(scope, 0),
 
 			#[cfg(feature = "canvas")]
@@ -159,7 +162,7 @@ impl State {
 
 
 #[inline]
-pub fn provide_state (scope: Scope, scene: Scene, overlay: MaybeSignal<bool>) {
+pub fn provide_state (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) {
 	let state = State::new(scope, scene, overlay);
 
 	provide_context(scope, state);
