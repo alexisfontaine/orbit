@@ -94,4 +94,10 @@ impl Shape {
 		path.push('z');
 		Some(path)
 	}
+
+	#[inline]
+	#[must_use]
+	pub fn vertices (&self) -> &[f64x4] {
+		&&self.vertices
+	}
 }
