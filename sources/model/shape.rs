@@ -5,6 +5,9 @@ use std::simd::f64x4;
 use crate::utils::{center, dot_product, normal};
 
 
+const DIRECTION_THRESHOLD: f64 = 0.9;
+
+
 #[derive(Clone, Debug)]
 #[must_use]
 pub struct Shape {
@@ -41,8 +44,20 @@ impl Shape {
 
 	#[inline]
 	#[must_use]
+	pub fn is_downward_facing (&self) -> bool {
+		self.normal()[2] <= -DIRECTION_THRESHOLD
+	}
+
+	#[inline]
+	#[must_use]
+	pub fn is_upward_facing (&self) -> bool {
+		self.normal()[2] >= DIRECTION_THRESHOLD
+	}
+
+	#[inline]
+	#[must_use]
 	pub fn is_vertical (&self) -> bool {
-		self.normal()[2].abs() < 0.9
+		self.normal()[2].abs() < DIRECTION_THRESHOLD
 	}
 
 	#[inline]
