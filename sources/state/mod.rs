@@ -14,11 +14,12 @@ use leptos::{
 use crate::model::{Camera, Scene, Viewport};
 
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 #[must_use]
 pub struct State {
 	camera: RwSignal<usize>,
-	overlay: Signal<bool>,
+	overlay_enabled: Signal<bool>,
+	overlay_mounted: RwSignal<bool>,
 	scene: Signal<Rc<Scene>>,
 	viewport: RwSignal<usize>,
 
@@ -32,10 +33,11 @@ impl State {
 	fn new (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) -> Self {
 		Self {
 			camera: create_rw_signal(scope, 0),
-			overlay: match overlay {
+			overlay_enabled: match overlay {
 				MaybeSignal::Dynamic(overlay) => overlay,
 				MaybeSignal::Static(overlay) => Signal::from(create_rw_signal(scope, overlay)),
 			},
+			overlay_mounted: create_rw_signal(scope, false),
 			scene: match scene {
 				MaybeSignal::Dynamic(scene) => scene,
 				MaybeSignal::Static(scene) => Signal::from(create_rw_signal(scope, scene)),
@@ -67,14 +69,29 @@ impl State {
 
 	#[inline]
 	#[must_use]
-	pub fn get_overlay (&self) -> bool {
-		self.overlay.get()
+	pub fn get_viewport (&self) -> usize {
+		self.viewport.get()
 	}
 
 	#[inline]
 	#[must_use]
-	pub fn get_viewport (&self) -> usize {
-		self.viewport.get()
+	pub fn is_overlay_enabled (&self) -> bool {
+		self.overlay_enabled.get()
+	}
+
+	#[inline]
+	#[must_use]
+	pub fn is_overlay_mounted (&self) -> bool {
+		self.overlay_mounted.get()
+	}
+
+	#[inline]
+	pub fn set_camera (&self, camera: usize) {
+		let index = self.camera.get_untracked();
+
+		if camera != index {
+			self.camera.set(camera);
+		}
 	}
 
 	#[inline]
@@ -84,6 +101,11 @@ impl State {
 		if viewport != index {
 			self.viewport.set(viewport);
 		}
+	}
+
+	#[inline]
+	pub fn set_overlay_mounted (&self, mounted: bool) {
+		self.overlay_mounted.set(mounted)
 	}
 
 	#[inline]

@@ -62,7 +62,7 @@ pub fn Viewer (scope: Scope) -> impl IntoView {
 		>
 			<Frames />
 
-			{move || state.get_overlay().then(|| view!(scope, <Overlay />))}
+			{move || state.is_overlay_enabled().then(|| view!(scope, <Overlay />))}
 		</main>
 	)
 }

@@ -12,6 +12,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 
 	let state = use_state(scope);
+	let container = NodeRef::<HtmlElement<svg::Svg>>::new(scope);
 
 	let height = Signal::derive(scope, move || state.with_camera(|camera| {
 		let value = camera.aspect_ratio.split_once('/').unwrap();
@@ -19,8 +20,16 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 		(WIDTH / value.0.parse::<f64>().unwrap() * value.1.parse::<f64>().unwrap()).ceil()
 	}));
 
+	create_effect(scope, move |_| {
+		container.get()?.on_mount(move |_| state.set_overlay_mounted(true));
+		Some(())
+	});
+
+	on_cleanup(scope, move || state.set_overlay_mounted(false));
+
 	view!(scope,
 		<svg
+			_ref=container
 			class="overlay"
 			viewBox=move || format!("0 0 {WIDTH:.0} {:.0}", height())
 			xmlns="http://www.w3.org/2000/svg"
