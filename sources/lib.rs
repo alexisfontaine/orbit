@@ -1,6 +1,8 @@
 #![feature(
 	iterator_try_collect,
+	is_sorted,
 	once_cell,
+	option_result_contains,
 	portable_simd,
 )]
 

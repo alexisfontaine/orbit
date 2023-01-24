@@ -1,26 +1,28 @@
 use std::simd::f64x4;
 
+use super::Frame;
+
 
 #[derive(Clone, Debug)]
 #[must_use]
 #[non_exhaustive]
 pub struct Viewport {
+	pub frames: Vec<Frame>,
 	pub matrix: [f64x4; 4],
 	pub position: f64x4,
-	pub sources: Vec<(usize, String)>,
 }
 
 
 impl Viewport {
 	#[inline]
-	pub fn new (position: f64x4, matrix: [f64x4; 4], sources: Vec<(usize, String)>) -> Self {
-		debug_assert!(sources.windows(2).all(|source| source[0].0 < source[1].0));
-		debug_assert!(if let Some((width, _)) = sources.get(0) { *width == 0 } else { true });
+	pub fn new (position: f64x4, matrix: [f64x4; 4], frames: Vec<Frame>) -> Self {
+		debug_assert!(frames.is_sorted_by_key(|frame| frame.kind.as_ref().zip(frame.size.or(Some(usize::MAX)))));
+		debug_assert!(frames.iter().any(Frame::is_fallback));
 
 		Self {
+			frames,
 			matrix,
 			position,
-			sources,
 		}
 	}
 }

@@ -1,5 +1,6 @@
 use leptos::*;
 
+use crate::model::Frame;
 use crate::state::use_state;
 
 
@@ -15,20 +16,28 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 	let state = use_state(scope);
 	let loading = create_rw_signal(scope, true);
 
+	let fallback = move || state.with_viewports(|viewports| viewports[viewport].frames
+		.iter()
+		.position(Frame::is_fallback));
+
 	view!(scope,
 		<picture>
 			// Purposely iterates over indexes to re-use existing nodes
 			<For
-				each=move || state.with_viewports(|viewports| 1..viewports[viewport].sources.len())
+				each=move || {
+					let fallback = fallback();
+
+					state
+						.with_viewports(|viewports| 0..viewports[viewport].frames.len())
+						.filter(move |index| !fallback.contains(index))
+				}
 				key=|&index| index
 				view=move |index| view!(scope,
 					<source
-						media=move || state.with_viewports(|viewports| {
-							format!("(max-width:{}px)", viewports[viewport].sources[index].0)
-						})
-						srcset=move || state.with_viewports(|viewports| {
-							viewports[viewport].sources[index].1.clone()
-						})
+						media=move || state.with_viewports(|viewports|
+							viewports[viewport].frames[index].size.map(|size| format!("(max-width:{size}px)")))
+						srcset=move || state.with_viewports(|viewports|
+ 							viewports[viewport].frames[index].source.clone())
 					/>
 				)
 			/>
@@ -56,13 +65,14 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 				on:load=move |_| if loading.get_untracked() {
 					loading.set(false);
 				}
-				src=move || state.with_viewports(|viewports| {
+				src=move || {
 					if !loading.get_untracked() {
 						loading.set(true);
 					}
 
-					viewports[viewport].sources.get(0).cloned().unwrap_or_default().1
-				})
+					state.with_viewports(|viewports|
+						Some(viewports[viewport].frames[fallback()?].source.clone()))
+				}
 			/>
 		</picture>
 	)
