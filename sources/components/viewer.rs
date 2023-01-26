@@ -2,7 +2,7 @@ use gloo_events::EventListener;
 use leptos::*;
 use web_sys::{KeyboardEvent, PointerEvent};
 
-use crate::state::use_state;
+use crate::state::use_viewer_state;
 
 use super::frames::{Frames, FramesProps};
 use super::overlay::{Overlay, OverlayProps};
@@ -10,7 +10,7 @@ use super::overlay::{Overlay, OverlayProps};
 
 #[component]
 pub fn Viewer (scope: Scope) -> impl IntoView {
-	let state = use_state(scope);
+	let state = use_viewer_state(scope);
 	let pointer_state = store_value(scope, None);
 
 	let handler = EventListener::new(&document(), "keydown", move |event| match KeyboardEvent::code(event.unchecked_ref()).as_str() {

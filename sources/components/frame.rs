@@ -1,7 +1,7 @@
 use leptos::*;
 
 use crate::model::Frame;
-use crate::state::use_state;
+use crate::state::use_viewer_state;
 
 
 /// Number of frames to be eagerly loaded, before and after the active one.
@@ -13,7 +13,7 @@ const LOW_PRIORITY_FETCHED: usize = EAGER_LOADED / 2;
 
 #[component]
 pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
-	let state = use_state(scope);
+	let state = use_viewer_state(scope);
 	let loading = create_rw_signal(scope, true);
 
 	let fallback = move || state.with_viewports(|viewports| viewports[viewport].frames

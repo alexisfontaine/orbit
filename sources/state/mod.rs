@@ -184,7 +184,7 @@ impl State {
 
 
 #[inline]
-pub fn provide_state (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) {
+pub fn provide_viewer_state (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) {
 	let state = State::new(scope, scene, overlay);
 
 	provide_context(scope, state);
@@ -194,6 +194,6 @@ pub fn provide_state (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: Mayb
 ///
 /// Need to be called in the context of a `State`
 #[inline]
-pub fn use_state (scope: Scope) -> State {
+pub fn use_viewer_state (scope: Scope) -> State {
 	use_context(scope).unwrap()
 }

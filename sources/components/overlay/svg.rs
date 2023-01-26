@@ -3,7 +3,7 @@ use std::iter::once;
 use leptos::*;
 
 use crate::model::Style;
-use crate::state::use_state;
+use crate::state::use_viewer_state;
 
 
 #[component]
@@ -11,7 +11,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 	const WIDTH: f64 = 1_000.;
 
 
-	let state = use_state(scope);
+	let state = use_viewer_state(scope);
 	let container = NodeRef::<HtmlElement<svg::Svg>>::new(scope);
 
 	let height = Signal::derive(scope, move || state.with_camera(|camera| {
@@ -45,7 +45,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 #[component]
 fn Paths (scope: Scope, width: f64, height: Signal<f64>, indexes: Signal<Vec<usize>>) -> impl IntoView {
-	let state = use_state(scope);
+	let state = use_viewer_state(scope);
 
 	let groups = move || state.with_camera(|camera| indexes.with(|indexes| {
 		let mut styles = &camera.styles;

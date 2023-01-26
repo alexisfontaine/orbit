@@ -1,6 +1,6 @@
 use leptos::*;
 
-use crate::state::use_state;
+use crate::state::use_viewer_state;
 
 use super::frame::{Frame, FrameProps};
 
@@ -8,7 +8,7 @@ use super::frame::{Frame, FrameProps};
 #[component]
 pub fn Frames (scope: Scope) -> impl IntoView {
 	let container = NodeRef::<HtmlElement<Div>>::new(scope);
-	let state = use_state(scope);
+	let state = use_viewer_state(scope);
 
 	// Sets the aspect-ratio of the container to match the active camera
 	create_effect(scope, move |_| {
