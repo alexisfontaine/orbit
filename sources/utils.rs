@@ -47,3 +47,11 @@ pub fn normal (points: &[f64x4]) -> f64x4 {
 
 	normal / Simd::splat(dot_product(normal, normal).sqrt())
 }
+
+#[inline]
+#[must_use]
+pub fn square_distance (point_1: f64x4, point_2: f64x4) -> f64 {
+	let vector =  point_2 - point_1;
+
+	dot_product(vector, vector)
+}
