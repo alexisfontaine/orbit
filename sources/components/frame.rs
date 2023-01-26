@@ -20,6 +20,19 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 		.iter()
 		.position(Frame::is_fallback));
 
+	let source = move || state.with_viewports(|viewports|
+		Some(viewports[viewport].frames[fallback()?].source.clone()));
+
+	create_effect(scope, move |previous| {
+		let current = source();
+
+		if !previous.contains(&current) && !loading.get() {
+			loading.set(true);
+		}
+
+		current
+	});
+
 	view!(scope,
 		<picture>
 			// Purposely iterates over indexes to re-use existing nodes
@@ -65,14 +78,7 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 				on:load=move |_| if loading.get_untracked() {
 					loading.set(false);
 				}
-				src=move || {
-					if !loading.get_untracked() {
-						loading.set(true);
-					}
-
-					state.with_viewports(|viewports|
-						Some(viewports[viewport].frames[fallback()?].source.clone()))
-				}
+				src=source
 			/>
 		</picture>
 	)
