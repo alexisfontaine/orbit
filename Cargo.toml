@@ -1,6 +1,6 @@
 [package]
 name = "orbit"
-version = "0.10.0"
+version = "0.10.1"
 authors = ["Alexis Fontaine <alexis.fontaine@outlook.com>"]
 edition = "2021"
 description = "3D model viewer"
