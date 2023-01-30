@@ -66,8 +66,15 @@ impl Shape {
 		*self.normal.get_or_init(|| normal(&self.vertices))
 	}
 
+	/// The `position` argument activates back-face culling.
 	#[must_use]
-	pub fn path (&self, width: f64, height: f64, matrix: &[f64x4; 4], offset: Option<f64x4>) -> Option<String> {
+	pub fn path (&self, width: f64, height: f64, matrix: &[f64x4; 4], position: Option<f64x4>, offset: Option<f64x4>) -> Option<String> {
+		if let Some(position) = position {
+			if dot_product(self.normal(), self.center() - position).is_sign_positive() {
+				return None
+			}
+		}
+
 		let mut path: String = once('M')
 			.chain(repeat('L'))
 			.zip(self.vertices.iter())

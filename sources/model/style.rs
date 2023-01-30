@@ -20,6 +20,7 @@ pub struct CompoundStyle {
 #[derive(Clone, Debug)]
 #[must_use]
 pub struct ShapeStyle {
+	pub back_face_culling: bool,
 	pub index: usize,
 	pub name: String,
 	pub offset: Option<f64x4>,
@@ -37,8 +38,8 @@ impl Style {
 	}
 
 	#[inline]
-	pub fn shape (name: String, index: usize, offset: Option<f64x4>) -> Self {
-		Self(Kind::Shape(ShapeStyle { index, name, offset }))
+	pub fn shape (name: String, index: usize, back_face_culling: bool, offset: Option<f64x4>) -> Self {
+		Self(Kind::Shape(ShapeStyle { back_face_culling, index, name, offset }))
 	}
 
 	#[inline]

@@ -50,12 +50,12 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 		let scene = state.get_scene();
 		let shapes = &scene.shapes;
 		let camera = &scene.cameras[state.get_camera()];
-		let matrix = &camera.viewports[state.get_viewport()].matrix;
+		let viewport = &camera.viewports[state.get_viewport()];
 
 		draw(&camera.styles, &move |style| {
 			let style = style.get_shape()?;
 
-			if let Some(path) = shapes[style.index].path(width, height, matrix, style) {
+			if let Some(path) = shapes[style.index].path(width, height, &viewport.matrix, style.back_face_culling.then_some(viewport.position), style) {
 				context.fill_with_path_2d(&Path2d::new_with_path_string(&path).ok()?);
 			}
 

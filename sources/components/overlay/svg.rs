@@ -129,10 +129,11 @@ fn Paths (scope: Scope, width: f64, height: Signal<f64>, indexes: Signal<Vec<usi
 						}
 
 						let style = styles.get(index)?.get_shape().unwrap();
+						let viewport = &camera.viewports[state.get_viewport()];
 
 						state
 							.get_scene().shapes[style.index]
-							.path(width, height(), &camera.viewports[state.get_viewport()].matrix, style.offset)
+							.path(width, height(), &viewport.matrix, style.back_face_culling.then_some(viewport.position), style.offset)
 					}))
 				/>
 			)
