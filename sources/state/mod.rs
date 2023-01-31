@@ -105,7 +105,7 @@ impl State {
 
 	#[inline]
 	pub fn set_overlay_mounted (&self, mounted: bool) {
-		self.overlay_mounted.set(mounted)
+		self.overlay_mounted.set(mounted);
 	}
 
 	#[inline]

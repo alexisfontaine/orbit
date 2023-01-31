@@ -24,6 +24,7 @@ impl Frame {
 	}
 
 	#[inline]
+	#[must_use]
 	pub const fn is_fallback (&self) -> bool {
 		self.kind.is_none() && self.size.is_none()
 	}

@@ -123,6 +123,6 @@ impl Shape {
 	#[inline]
 	#[must_use]
 	pub fn vertices (&self) -> &[f64x4] {
-		&&self.vertices
+		&self.vertices
 	}
 }
