@@ -50,6 +50,24 @@ impl Shape {
 
 	#[inline]
 	#[must_use]
+	pub fn is_height_negative (&self) -> bool {
+		self.normal()[2].is_sign_negative()
+	}
+
+	#[inline]
+	#[must_use]
+	pub fn is_height_positive (&self) -> bool {
+		self.normal()[2].is_sign_positive()
+	}
+
+	#[inline]
+	#[must_use]
+	pub fn is_horizontal (&self) -> bool {
+		self.normal()[2].abs() >= DIRECTION_THRESHOLD
+	}
+
+	#[inline]
+	#[must_use]
 	pub fn is_upward_facing (&self) -> bool {
 		self.normal()[2] >= DIRECTION_THRESHOLD
 	}
@@ -57,7 +75,7 @@ impl Shape {
 	#[inline]
 	#[must_use]
 	pub fn is_vertical (&self) -> bool {
-		self.normal()[2].abs() < DIRECTION_THRESHOLD
+		self.normal()[2].abs() <= 1. - DIRECTION_THRESHOLD
 	}
 
 	#[inline]
