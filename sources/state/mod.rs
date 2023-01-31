@@ -1,10 +1,12 @@
 use std::rc::Rc;
 
 use leptos::{
+	create_memo,
 	create_rw_signal,
 	provide_context,
 	use_context,
 	MaybeSignal,
+	Memo,
 	RwSignal,
 	Scope,
 	Signal,
@@ -17,6 +19,8 @@ use crate::model::{Camera, Scene, Viewport};
 #[derive(Copy, Clone)]
 #[must_use]
 pub struct State {
+	pub(crate) camera_aspect_ratio: Memo<f64>,
+
 	camera: RwSignal<usize>,
 	overlay_enabled: Signal<bool>,
 	overlay_mounted: RwSignal<bool>,
@@ -31,17 +35,23 @@ pub struct State {
 impl State {
 	#[inline]
 	fn new (scope: Scope, scene: MaybeSignal<Rc<Scene>>, overlay: MaybeSignal<bool>) -> Self {
+		let camera = create_rw_signal(scope, 0);
+
+		let scene = match scene {
+			MaybeSignal::Dynamic(scene) => scene,
+			MaybeSignal::Static(scene) => Signal::from(create_rw_signal(scope, scene)),
+		};
+
 		Self {
-			camera: create_rw_signal(scope, 0),
+			camera,
+			camera_aspect_ratio: create_memo(scope, move |_|
+				scene.with(|scene| scene.cameras[camera.get()].aspect_ratio.value())),
 			overlay_enabled: match overlay {
 				MaybeSignal::Dynamic(overlay) => overlay,
 				MaybeSignal::Static(overlay) => Signal::from(create_rw_signal(scope, overlay)),
 			},
 			overlay_mounted: create_rw_signal(scope, false),
-			scene: match scene {
-				MaybeSignal::Dynamic(scene) => scene,
-				MaybeSignal::Static(scene) => Signal::from(create_rw_signal(scope, scene)),
-			},
+			scene,
 			viewport: create_rw_signal(scope, 0),
 
 			#[cfg(feature = "canvas")]

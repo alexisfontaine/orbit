@@ -14,7 +14,7 @@ pub fn Frames (scope: Scope) -> impl IntoView {
 	create_effect(scope, move |_| {
 		let container = container()?;
 
-		state.with_camera(|camera| container.style().set_property("aspect-ratio", &camera.aspect_ratio)).ok()
+		state.with_camera(|camera| container.style().set_property("aspect-ratio", &camera.aspect_ratio.format())).ok()
 	});
 
 	// Updates the size of the container

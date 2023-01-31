@@ -13,12 +13,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 	let state = use_viewer_state(scope);
 	let container = NodeRef::<HtmlElement<svg::Svg>>::new(scope);
-
-	let height = Signal::derive(scope, move || state.with_camera(|camera| {
-		let value = camera.aspect_ratio.split_once('/').unwrap();
-
-		(WIDTH / value.0.parse::<f64>().unwrap() * value.1.parse::<f64>().unwrap()).ceil()
-	}));
+	let height = Signal::derive(scope, move || (WIDTH / state.camera_aspect_ratio.get()).ceil());
 
 	create_effect(scope, move |_| {
 		container.get()?.on_mount(move |_| state.set_overlay_mounted(true));
