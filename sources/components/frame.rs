@@ -48,7 +48,7 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 				view=move |index| view!(scope,
 					<source
 						media=move || state.with_viewports(|viewports|
-							viewports[viewport].frames[index].size.map(|size| format!("(max-width:{size}px)")))
+							viewports[viewport].frames[index].size.map(|size| format!("(max-width:{:.0}px), (max-height:{size}px)", size as f64 * state.camera_aspect_ratio.get())))
 						srcset=move || state.with_viewports(|viewports|
  							viewports[viewport].frames[index].source.clone())
 						type=move || state.with_viewports(|viewports|
