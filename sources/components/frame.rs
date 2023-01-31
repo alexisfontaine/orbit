@@ -51,6 +51,8 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 							viewports[viewport].frames[index].size.map(|size| format!("(max-width:{size}px)")))
 						srcset=move || state.with_viewports(|viewports|
  							viewports[viewport].frames[index].source.clone())
+						type=move || state.with_viewports(|viewports|
+ 							viewports[viewport].frames[index].kind.clone())
 					/>
 				)
 			/>
