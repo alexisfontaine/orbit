@@ -68,10 +68,9 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 					} else {
 						let length = state.viewports();
 
-						(
-							(LOW_PRIORITY_FETCHED + 1..length - LOW_PRIORITY_FETCHED).contains(&delta) &&
-							!(EAGER_LOADED + 1..length - EAGER_LOADED).contains(&delta)
-						).then_some("low")
+						(LOW_PRIORITY_FETCHED + 1..state.viewports() - LOW_PRIORITY_FETCHED)
+							.contains(&delta)
+							.then_some("low")
 					}
 				}
 				loading=move || (EAGER_LOADED + 1..state.viewports() - EAGER_LOADED)
