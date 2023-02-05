@@ -1,4 +1,5 @@
 use leptos::*;
+use wasm_bindgen::intern;
 use web_sys::{CanvasRenderingContext2d, Path2d};
 
 use crate::model::Style;
@@ -12,7 +13,7 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 
 	let context = move || {
 		let canvas = canvas()?;
-		let context: CanvasRenderingContext2d = canvas.get_context("2d").ok()??.unchecked_into();
+		let context: CanvasRenderingContext2d = canvas.get_context(intern("2d").ok()??.unchecked_into();
 
 		context.set_fill_style(&"#a494".into());
 
@@ -31,8 +32,8 @@ pub fn Overlay (scope: Scope) -> impl IntoView {
 			canvas_height = (height * ratio).round();
 
 			let style = canvas.style();
-			let _ = style.set_property("width", &format!("{width}px"));
-			let _ = style.set_property("height", &format!("{height}px"));
+			let _ = style.set_property(intern("width"), &format!("{width}px"));
+			let _ = style.set_property(intern("height"), &format!("{height}px"));
 			let _ = context.scale(width / canvas_width, height / canvas_height);
 		}
 

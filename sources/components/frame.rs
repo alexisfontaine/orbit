@@ -1,4 +1,5 @@
 use leptos::*;
+use wasm_bindgen::intern;
 
 use crate::model::Frame;
 use crate::state::use_viewer_state;
@@ -64,18 +65,18 @@ pub fn Frame (scope: Scope, viewport: usize) -> impl IntoView {
 					let delta = state.get_viewport().abs_diff(viewport);
 
 					if delta == 0 {
-						Some("high")
+						Some(intern("high"))
 					} else {
 						let length = state.viewports();
 
 						(LOW_PRIORITY_FETCHED + 1..state.viewports() - LOW_PRIORITY_FETCHED)
 							.contains(&delta)
-							.then_some("low")
+							.then_some(intern("low"))
 					}
 				}
 				loading=move || (EAGER_LOADED + 1..state.viewports() - EAGER_LOADED)
 					.contains(&state.get_viewport().abs_diff(viewport))
-					.then_some("lazy")
+					.then_some(intern("lazy"))
 				on:load=move |_| if loading.get_untracked() {
 					loading.set(false);
 				}
